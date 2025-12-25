@@ -815,24 +815,31 @@ llm_graph_result * llama_context::process_ubatch(const llama_ubatch & ubatch, ll
 
     auto * res = gf_res_prev.get();
     auto * gf  = res->get_gf();
+    LLAMA_LOG_INFO("meewet1: process_ubatch called seqid:%d, \n", ubatch.n_seq_id);
 
     // the new graph parameters
     // in order to correctly reuse a graph, it's full topology has to be uniquely determined by these parameters
     const auto gparams = graph_params(res, ubatch, mctx, gtype);
+    LLAMA_LOG_INFO("meewet2: process_ubatch called seqid:%d, \n", ubatch.n_seq_id);
 
     if (!graph_reuse_disable && res->can_reuse(gparams)) {
         //LLAMA_LOG_DEBUG("%s: reusing previous graph\n", __func__);
+        LLAMA_LOG_INFO("meewet3: process_ubatch called seqid:%d, \n", ubatch.n_seq_id);
 
         n_reused++;
     } else {
+        LLAMA_LOG_INFO("meewet4: process_ubatch called seqid:%d, \n", ubatch.n_seq_id);
         res->reset();
 
         ggml_backend_sched_reset(sched.get());
+        LLAMA_LOG_INFO("meewet5: process_ubatch called seqid:%d, \n", ubatch.n_seq_id);
         ggml_backend_sched_set_eval_callback(sched.get(), cparams.cb_eval, cparams.cb_eval_user_data);
+        LLAMA_LOG_INFO("meewet6: process_ubatch called seqid:%d, \n", ubatch.n_seq_id);
 
         //const auto t_start_us = ggml_time_us();
 
         gf = model.build_graph(gparams);
+        LLAMA_LOG_INFO("meewet7: process_ubatch called seqid:%d, \n", ubatch.n_seq_id);
 
         //LLAMA_LOG_INFO("graph build time: %.3f ms\n", (ggml_time_us() - t_start_us)/1000.0);
 
@@ -841,12 +848,14 @@ llm_graph_result * llama_context::process_ubatch(const llama_ubatch & ubatch, ll
             ret = GGML_STATUS_FAILED;
             return nullptr;
         }
+        LLAMA_LOG_INFO("meewet8: process_ubatch called seqid:%d, \n", ubatch.n_seq_id);
 
         if (!ggml_backend_sched_alloc_graph(sched.get(), gf)) {
             LLAMA_LOG_ERROR("%s: failed to allocate graph\n", __func__);
             ret = GGML_STATUS_ALLOC_FAILED;
             return nullptr;
         }
+        LLAMA_LOG_INFO("meewet9: process_ubatch called seqid:%d, \n", ubatch.n_seq_id);
     }
 
     // set the input data for the input tensors
@@ -854,11 +863,13 @@ llm_graph_result * llama_context::process_ubatch(const llama_ubatch & ubatch, ll
         //const auto t_start_us = ggml_time_us();
 
         res->set_inputs(&ubatch);
+        LLAMA_LOG_INFO("meewet10: process_ubatch called seqid:%d, \n", ubatch.n_seq_id);
 
         //LLAMA_LOG_INFO("graph set inputs time: %.3f ms\n", (ggml_time_us() - t_start_us)/1000.0);
     }
 
     const auto status = graph_compute(res->get_gf(), ubatch.n_tokens > 1);
+        LLAMA_LOG_INFO("meewet11: process_ubatch called seqid:%d, \n", ubatch.n_seq_id);
     if (status != GGML_STATUS_SUCCESS) {
         LLAMA_LOG_ERROR("%s: failed to compute graph, compute status: %d\n", __func__, status);
         ret = status;

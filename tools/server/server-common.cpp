@@ -692,7 +692,6 @@ static server_tokens tokenize_input_subprompt(const llama_vocab * vocab, mtmd_co
     constexpr char JSON_STRING_PROMPT_KEY[] = "prompt_string";
     constexpr char JSON_MTMD_DATA_KEY[] = "multimodal_data";
     const bool has_mtmd = mctx != nullptr;
-    SRV_INF("meewet: this is the json prompt: %s\n", json_prompt.dump().c_str());
     if (json_prompt.is_string() || json_is_array_of_mixed_numbers_strings(json_prompt)) {
         // string or mixed
         int temp = 1;

@@ -2364,14 +2364,20 @@ struct server_context_impl {
                         }
                     }
                 }
+                if(nt >= 122880)
+                    SLT_INF(slot, "n_tokens = %ld, 7\n", nt);
 
                 if (!slot_batched) {
                     slot_batched = &slot;
                 }
+                if(nt >= 122880)
+                    SLT_INF(slot, "n_tokens = %ld, 8\n", nt);
 
                 if (batch.n_tokens >= n_batch) {
                     break;
                 }
+                if(nt >= 122880)
+                    SLT_INF(slot, "n_tokens = %ld, 9\n", nt);
             }
         }
 

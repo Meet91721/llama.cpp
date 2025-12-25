@@ -2388,12 +2388,10 @@ struct server_context_impl {
         }
 
         SRV_DBG("decoding batch, n_tokens = %d\n", batch.n_tokens);
-        SRV_INF("decoding batch, n_tokens = %d and serverslot id: %ld\n", batch.n_tokens, slot_batched ? slot_batched->id : -1);
 
         if (slot_batched) {
             // apply lora, only need to do it once per batch
             common_set_adapter_lora(ctx, slot_batched->lora);
-            SRV_INF("Applied LoRA adapters for serverslot id: %ld this is the alora scale %f\n", slot_batched->id, alora_scale);
 
             // if the lora is temporarily disabled for an alora, re-enable it
             // for next time
@@ -2402,7 +2400,6 @@ struct server_context_impl {
                 slot_batched->lora[alora_disabled_id].scale = alora_scale;
             }
 
-            SRV_INF("Applying llama_set_embeddings for serverslot id: %ld this is the alora scale %f\n", slot_batched->id, alora_scale);
             llama_set_embeddings(ctx, slot_batched->need_embd());
         }
 
@@ -2422,14 +2419,14 @@ struct server_context_impl {
                 batch.logits   + i,
             };
 
-            SRV_INF("This is the detail of batch_view being sent to llama_decode: n_tokens: %d, token[0]: %d, pos[0]: %d, seq_id[0]: %d\n",
-                    batch_view.n_tokens,
-                    batch_view.token[0],
-                    batch_view.pos[0],
-                    batch_view.seq_id[0]);
+            // SRV_INF("This is the detail of batch_view being sent to llama_decode: n_tokens: %d, token[0]: %d, pos[0]: %d, seq_id[0]: %ld\n",
+            //         batch_view.n_tokens,
+            //         batch_view.token[0],
+            //         batch_view.pos[0],
+            //         batch_view.seq_id[0]);
 
             const int ret = llama_decode(ctx, batch_view);
-            SRV_INF("llama_decode returned %d\n", ret);
+            // SRV_INF("llama_decode returned %d\n", ret);
 
             metrics.on_decoded(slots);
 

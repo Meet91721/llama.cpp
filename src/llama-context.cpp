@@ -1044,7 +1044,7 @@ int llama_context::encode(const llama_batch & batch_inp) {
 }
 
 int llama_context::decode(const llama_batch & batch_inp) {
-    LLAMA_LOG_INFO("meewet0: decode called, these are teh number of tokens: %d\n", batch_inp.n_tokens);
+    // LLAMA_LOG_INFO("meewet0: decode called, these are teh number of tokens: %d\n", batch_inp.n_tokens);
     GGML_ASSERT((!batch_inp.token && batch_inp.embd) || (batch_inp.token && !batch_inp.embd)); // NOLINT
 
     if (!memory) {
@@ -1159,7 +1159,7 @@ int llama_context::decode(const llama_batch & batch_inp) {
         const auto & ubatch = mctx->get_ubatch();
 
         // count the outputs in this ubatch
-        LLAMA_LOG_INFO("meewet1: n_tokens_all = %d, n_outputs_all = %d, ubatch.n_tokens = %d\n", n_tokens_all, n_outputs_all, ubatch.n_tokens);
+        // LLAMA_LOG_INFO("meewet1: n_tokens_all = %d, n_outputs_all = %d, ubatch.n_tokens = %d\n", n_tokens_all, n_outputs_all, ubatch.n_tokens);
         {
             int32_t n_outputs_new = 0;
 
@@ -1175,10 +1175,10 @@ int llama_context::decode(const llama_batch & batch_inp) {
             n_outputs = n_outputs_new;
         }
 
-        LLAMA_LOG_INFO("meewet2: n_tokens_all = %d, n_outputs_all = %d, ubatch.n_tokens = %d\n", n_tokens_all, n_outputs_all, ubatch.n_tokens);
+        // LLAMA_LOG_INFO("meewet2: n_tokens_all = %d, n_outputs_all = %d, ubatch.n_tokens = %d\n", n_tokens_all, n_outputs_all, ubatch.n_tokens);
         ggml_status status;
         const auto * res = process_ubatch(ubatch, LLM_GRAPH_TYPE_DECODER, mctx.get(), status);
-        LLAMA_LOG_INFO("meewet3: n_tokens_all = %d, n_outputs_all = %d, ubatch.n_tokens = %d\n", n_tokens_all, n_outputs_all, ubatch.n_tokens);
+        // LLAMA_LOG_INFO("meewet3: n_tokens_all = %d, n_outputs_all = %d, ubatch.n_tokens = %d\n", n_tokens_all, n_outputs_all, ubatch.n_tokens);
 
         if (!res) {
             // the last ubatch failed or was aborted -> remove all positions of that ubatch from the memory module
@@ -1210,7 +1210,7 @@ int llama_context::decode(const llama_batch & batch_inp) {
                 case GGML_STATUS_SUCCESS:      GGML_ABORT("should not happen");
             }
         }
-        LLAMA_LOG_INFO("meewet4: n_tokens_all = %d, n_outputs_all = %d, ubatch.n_tokens = %d\n", n_tokens_all, n_outputs_all, ubatch.n_tokens);
+        // LLAMA_LOG_INFO("meewet4: n_tokens_all = %d, n_outputs_all = %d, ubatch.n_tokens = %d\n", n_tokens_all, n_outputs_all, ubatch.n_tokens);
 
         // plot the computation graph in dot format (for debugging purposes)
         //if (n_past%100 == 0) {
@@ -1238,12 +1238,12 @@ int llama_context::decode(const llama_batch & batch_inp) {
                 ggml_backend_tensor_get_async(backend_res, t_logits, logits_out, 0, n_outputs*n_vocab*sizeof(float));
             }
         }
-        LLAMA_LOG_INFO("meewet5: n_tokens_all = %d, n_outputs_all = %d, ubatch.n_tokens = %d\n", n_tokens_all, n_outputs_all, ubatch.n_tokens);
+        // LLAMA_LOG_INFO("meewet5: n_tokens_all = %d, n_outputs_all = %d, ubatch.n_tokens = %d\n", n_tokens_all, n_outputs_all, ubatch.n_tokens);
 
         // extract embeddings
         if (t_embd && n_outputs > 0) {
             ggml_backend_t backend_embd = ggml_backend_sched_get_tensor_backend(sched.get(), t_embd);
-            LLAMA_LOG_INFO("meewet6: n_tokens_all = %d, n_outputs_all = %d, ubatch.n_tokens = %d this is the pooling_type = %d\n", n_tokens_all, n_outputs_all, ubatch.n_tokens, cparams.pooling_type);
+            // LLAMA_LOG_INFO("meewet6: n_tokens_all = %d, n_outputs_all = %d, ubatch.n_tokens = %d this is the pooling_type = %d\n", n_tokens_all, n_outputs_all, ubatch.n_tokens, cparams.pooling_type);
             GGML_ASSERT(backend_embd != nullptr);
 
             switch (cparams.pooling_type) {
@@ -1297,9 +1297,9 @@ int llama_context::decode(const llama_batch & batch_inp) {
         }
 
         n_outputs_prev += n_outputs;
-        LLAMA_LOG_INFO("meewet7: this is the n_outputs_prev = %lld and n_outputs = %d\n", n_outputs_prev, n_outputs);
+        // LLAMA_LOG_INFO("meewet7: this is the n_outputs_prev = %lld and n_outputs = %d\n", n_outputs_prev, n_outputs);
     } while (mctx->next());
-    LLAMA_LOG_INFO("meewet8%s: decoding batch with %d tokens (%d outputs)\n", __func__, n_tokens_all, n_outputs_all);
+    // LLAMA_LOG_INFO("meewet8%s: decoding batch with %d tokens (%d outputs)\n", __func__, n_tokens_all, n_outputs_all);
 
     // set to total number of outputs in the batch, for use in llama_get_logits_ith
     n_outputs = n_outputs_all;

@@ -2371,7 +2371,8 @@ struct server_context_impl {
                     slot_batched = &slot;
                 }
                 if(nt >= 122880)
-                    SLT_INF(slot, "n_tokens = %ld, 8\n", nt);
+                    SLT_INF(slot, "batch.n_tokens = %ld, n_batch = %ld, 8\n", batch.n_tokens, n_batch);
+
 
                 if (batch.n_tokens >= n_batch) {
                     break;

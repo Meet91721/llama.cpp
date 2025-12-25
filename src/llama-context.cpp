@@ -1086,8 +1086,10 @@ int llama_context::decode(const llama_batch & batch_inp) {
 
     bool did_optimize = false;
 
+    LLAMA_LOG_INFO("meewet1%s: decoding batch with %d tokens (%d outputs)\n", __func__, n_tokens_all, n_outputs_all);
     // handle any pending shifts/copies
     memory_update(false);
+    LLAMA_LOG_INFO("meewet1%s: decoding batch with %d tokens (%d outputs)\n", __func__, n_tokens_all, n_outputs_all);
 
     llama_memory_context_ptr mctx;
 
@@ -1133,6 +1135,8 @@ int llama_context::decode(const llama_batch & batch_inp) {
 
         break;
     }
+
+    LLAMA_LOG_INFO("meewet1%s: decoding batch with %d tokens (%d outputs)\n", __func__, n_tokens_all, n_outputs_all);
 
     // reserve output buffer
     if (output_reserve(n_outputs_all) < n_outputs_all) {
@@ -1279,6 +1283,7 @@ int llama_context::decode(const llama_batch & batch_inp) {
 
         n_outputs_prev += n_outputs;
     } while (mctx->next());
+    LLAMA_LOG_INFO("meewet1%s: decoding batch with %d tokens (%d outputs)\n", __func__, n_tokens_all, n_outputs_all);
 
     // set to total number of outputs in the batch, for use in llama_get_logits_ith
     n_outputs = n_outputs_all;

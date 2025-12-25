@@ -1906,19 +1906,19 @@ struct server_context_impl {
                 // SLT_DBG("Just Reached here");
                 int64_t nt = slot.prompt.n_tokens();;
                 if(nt >= 122880)
-                    SLT_INF(slot, "n_tokens = %d, 1\n", nt);
+                    SLT_INF(slot, "n_tokens = %ld, 1\n", nt);
                 if (!slot.is_processing()) {
                     continue;
                 }
 
                 if(nt >= 122880)
-                    SLT_INF(slot, "n_tokens = %d, 2\n", nt);
+                    SLT_INF(slot, "n_tokens = %ld, 2\n", nt);
                 // check if we can batch this slot with the previous one
                 if (slot_batched && !slot_batched->can_batch_with(slot)) {
                     continue;
                 }
                 if(nt >= 122880)
-                    SLT_INF(slot, "n_tokens = %d, 3\n", nt);
+                    SLT_INF(slot, "n_tokens = %ld, 3\n", nt);
 
                 // this slot still has a prompt to be processed
                 if (slot.state == SLOT_STATE_PROCESSING_PROMPT || slot.state == SLOT_STATE_STARTED) {
@@ -1928,7 +1928,7 @@ struct server_context_impl {
                     if (slot.state == SLOT_STATE_STARTED) {
 
                         if(nt >= 122880)
-                            SLT_INF(slot, "n_tokens = %d, 1 MF it should not go here\n", nt);
+                            SLT_INF(slot, "n_tokens = %ld, 1 MF it should not go here\n", nt);
                         slot.t_start_process_prompt = ggml_time_us();
                         slot.t_start_generation = 0;
 
@@ -2191,7 +2191,7 @@ struct server_context_impl {
                     }
 
                     if(nt >= 122880)
-                        SLT_INF(slot, "n_tokens = %d, 4\n", nt);
+                        SLT_INF(slot, "n_tokens = %ld, 4\n", nt);
                     if (!slot.can_split()) {
                         // cannot fit the prompt in the current batch - will try next iter
                         if (batch.n_tokens + slot.task->n_tokens() > n_batch) {
@@ -2200,12 +2200,12 @@ struct server_context_impl {
                     }
 
                     if(nt >= 122880)
-                        SLT_INF(slot, "n_tokens = %d, 5\n", nt);
+                        SLT_INF(slot, "n_tokens = %ld, 5\n", nt);
                     // truncate any tokens that are beyond n_past for this slot
                     const llama_pos p0 = slot.prompt.tokens.pos_next();
 
                     if(nt >= 122880)
-                        SLT_INF(slot, "n_tokens = %d, 1\n", nt);
+                        SLT_INF(slot, "n_tokens = %ld, 6\n", nt);
                     SLT_INF(slot, "n_tokens = %d, memory_seq_rm [%d, end)\n", slot.prompt.n_tokens(), p0);
 
                     if (!llama_memory_seq_rm(llama_get_memory(ctx), slot.id, p0, -1)) {
@@ -2737,7 +2737,7 @@ static std::unique_ptr<server_res_generator> handle_completions_impl(
             inputs.push_back(process_mtmd_prompt(ctx_server.mctx, prompt.get<std::string>(), files));
         } else {
             // Everything else, including multimodal completions.
-            SRV_INF("meewet: just before tokenizing the input prompts\n");
+            SRV_INF("meewet: just before tokenizing the input prompts%d\n", true);
             inputs = tokenize_input_prompts(ctx_server.vocab, ctx_server.mctx, prompt, true, true);
         }
         tasks.reserve(inputs.size());

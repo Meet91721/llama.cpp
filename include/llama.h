@@ -231,9 +231,9 @@ extern "C" {
     typedef struct llama_batch {
         int32_t n_tokens;
 
-        llama_token  *  token;
+        llama_token  *  token;  // This is int32_t
         float        *  embd;
-        llama_pos    *  pos;
+        llama_pos    *  pos;    // This is int32_t
         int32_t      *  n_seq_id;
         llama_seq_id ** seq_id;
         int8_t       *  logits;   // TODO: rename this to "output"

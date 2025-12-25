@@ -695,7 +695,8 @@ static server_tokens tokenize_input_subprompt(const llama_vocab * vocab, mtmd_co
     SRV_INF("meewet: this is the json prompt: %s\n", json_prompt.dump().c_str());
     if (json_prompt.is_string() || json_is_array_of_mixed_numbers_strings(json_prompt)) {
         // string or mixed
-        SRV_INF("meewet: tokenizing mixed input\n");
+        int temp = 1;
+        SRV_INF("meewet: tokenizing mixed input %d\n", temp);
         llama_tokens tmp = tokenize_mixed(vocab, json_prompt, add_special, parse_special);
         return server_tokens(tmp, false);
     } else if (json_is_array_of_numbers(json_prompt)) {
@@ -732,7 +733,8 @@ std::vector<server_tokens> tokenize_input_prompts(const llama_vocab * vocab, mtm
             result.push_back(tokenize_input_subprompt(vocab, mctx, p,add_special, parse_special));
         }
     } else {
-        SRV_DBG("meewet: tokenizing single prompt\n");
+        int temp = 1;
+        SRV_INF("meewet: tokenizing single prompt%d\n", temp);
         result.push_back(tokenize_input_subprompt(vocab, mctx, json_prompt, add_special, parse_special));
     }
     if (result.empty()) {

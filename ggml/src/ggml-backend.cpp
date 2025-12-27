@@ -1789,18 +1789,28 @@ enum ggml_status ggml_backend_sched_graph_compute(ggml_backend_sched_t sched, st
 }
 
 enum ggml_status ggml_backend_sched_graph_compute_async(ggml_backend_sched_t sched, struct ggml_cgraph * graph) {
+    // Print logs here for easier debugging
+    GGML_LOG_INFO("meewet0%s: computing graph with %d nodes and %d leafs\n", __func__, graph->n_nodes, graph->n_leafs);
+
     GGML_ASSERT(sched);
     if (!sched->is_reset && !sched->is_alloc) {
+        GGML_LOG_INFO("meewet1%s: computing graph with %d nodes and %d leafs\n", __func__, graph->n_nodes, graph->n_leafs);
         ggml_backend_sched_reset(sched);
     }
+    GGML_LOG_INFO("meewet2%s: computing graph with %d nodes and %d leafs\n", __func__, graph->n_nodes, graph->n_leafs);
 
     if (!sched->is_alloc) {
+        GGML_LOG_INFO("meewet3%s: computing graph with %d nodes and %d leafs\n", __func__, graph->n_nodes, graph->n_leafs);
         if (!ggml_backend_sched_alloc_graph(sched, graph)) {
             return GGML_STATUS_ALLOC_FAILED;
         }
     }
+    GGML_LOG_INFO("meewet4%s: computing graph with %d nodes and %d leafs\n", __func__, graph->n_nodes, graph->n_leafs);
 
-    return ggml_backend_sched_compute_splits(sched);
+    ggml_status status = ggml_backend_sched_compute_splits(sched);
+    GGML_LOG_INFO("meewet5%s: computing graph with %d nodes and %d leafs\n", __func__, graph->n_nodes, graph->n_leafs);
+    return status;
+    // return ggml_backend_sched_compute_splits(sched);
 }
 
 void ggml_backend_sched_synchronize(ggml_backend_sched_t sched) {

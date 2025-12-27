@@ -866,7 +866,7 @@ llm_graph_result * llama_context::process_ubatch(const llama_ubatch & ubatch, ll
     fflush(stderr);
     const auto status = graph_compute(res->get_gf(), ubatch.n_tokens > 1);
     ggml_log_callback cb;
-    void * cb_user;
+    // void * cb_user;
     llama_log_get(&cb, &cb_user);
     fprintf(stderr, "current log callback ptr=%p user=%p\n", (void*)cb, cb_user);
     fflush(stderr);
@@ -1551,12 +1551,10 @@ llm_graph_params llama_context::graph_params(
 ggml_status llama_context::graph_compute(
             ggml_cgraph * gf,
                    bool   batched) {
-    fprintf(stderr, "ENTERED graph_compute: gf=%p, batched=%d\n", (void*)gf, (int)batched);
-    fflush(stderr);
     int n_threads        = batched ? cparams.n_threads_batch : cparams.n_threads;
     ggml_threadpool_t tp = batched ? threadpool_batch        : threadpool;
 
-    LLAMA_LOG_INFO("meewet0 %s: computing graph with %d threads (batched=%d)\n", __func__, n_threads, batched);
+    // LLAMA_LOG_INFO("meewet0 %s: computing graph with %d threads (batched=%d)\n", __func__, n_threads, batched);
     if (backend_cpu != nullptr) {
         LLAMA_LOG_INFO("meewet1 %s: setting threadpool for CPU backend\n", __func__);
         auto * reg = ggml_backend_dev_backend_reg(ggml_backend_get_device(backend_cpu));
@@ -1566,15 +1564,16 @@ ggml_status llama_context::graph_compute(
         }
     }
 
-    LLAMA_LOG_INFO("meewet2 %s: setting number of threads for all backends\n", __func__);
+    // LLAMA_LOG_INFO("meewet2 %s: setting number of threads for all backends\n", __func__);
     // set the number of threads for all the backends
     for (const auto & set_n_threads_fn : set_n_threads_fns) {
         set_n_threads_fn.second(set_n_threads_fn.first, n_threads);
     }
 
-    LLAMA_LOG_INFO("meewet3 %s: starting async graph compute\n", __func__);
+    LLAMA_LOG_INFO("meewet0 %s: starting async graph compute\n", __func__);
     auto status = ggml_backend_sched_graph_compute_async(sched.get(), gf);
-    LLAMA_LOG_INFO("meewet4 %s: async graph compute started\n", __func__);
+    LLAMA_LOG_INFO("meewet-0 %s: starting async graph compute\n", __func__);
+    // LLAMA_LOG_INFO("meewet4 %s: async graph compute started\n", __func__);
     if (status != GGML_STATUS_SUCCESS) {
         LLAMA_LOG_ERROR("%s: ggml_backend_sched_graph_compute_async failed with error %d\n", __func__, status);
     }

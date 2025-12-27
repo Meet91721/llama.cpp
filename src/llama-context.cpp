@@ -858,18 +858,8 @@ llm_graph_result * llama_context::process_ubatch(const llama_ubatch & ubatch, ll
         //LLAMA_LOG_INFO("graph set inputs time: %.3f ms\n", (ggml_time_us() - t_start_us)/1000.0);
     }
 
-    LLAMA_LOG_INFO("meewet0: process_ubatch called seqid:%d, \n", ubatch.n_seq_id);
-    ggml_log_callback cb;
-    void * cb_user;
-    llama_log_get(&cb, &cb_user);
-    fprintf(stderr, "current log callback ptr=%p user=%p\n", (void*)cb, cb_user);
-    fflush(stderr);
+    LLAMA_LOG_INFO("meewet0: process_ubatch called seqid:%d, \n", *(ubatch.n_seq_id));
     const auto status = graph_compute(res->get_gf(), ubatch.n_tokens > 1);
-    ggml_log_callback cb;
-    // void * cb_user;
-    llama_log_get(&cb, &cb_user);
-    fprintf(stderr, "current log callback ptr=%p user=%p\n", (void*)cb, cb_user);
-    fflush(stderr);
     LLAMA_LOG_INFO("meewet-0: process_ubatch called seqid:%d, \n", ubatch.n_seq_id);
     if (status != GGML_STATUS_SUCCESS) {
         LLAMA_LOG_ERROR("%s: failed to compute graph, compute status: %d\n", __func__, status);

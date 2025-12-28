@@ -395,9 +395,9 @@ void ggml_backend_tensor_copy(struct ggml_tensor * src, struct ggml_tensor * dst
 
     GGML_LOG_INFO("meewet_copy1: copying tensor %p to tensor %p\n", src, dst);
     if (ggml_backend_buffer_is_host(src->buffer)) {
-        GGML_LOG_INFO("meewet_copy2: copying tensor %p to tensor %p\n", src, dst);
+        GGML_LOG_INFO("meewet_copy2: copying tensor %p to tensor %p\n");
         ggml_backend_tensor_set(dst, src->data, 0, ggml_nbytes(src));
-        GGML_LOG_INFO("meewet_copy3: this took so much time\n", src, dst);
+        GGML_LOG_INFO("meewet_copy3: this took so much time\n");
     } else if (ggml_backend_buffer_is_host(dst->buffer)) {
         ggml_backend_tensor_get(src, dst->data, 0, ggml_nbytes(src));
     } else if (!ggml_backend_buffer_copy_tensor(src, dst)) {

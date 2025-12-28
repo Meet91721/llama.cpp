@@ -2,6 +2,7 @@
 #include "cpy.cuh"
 
 void ggml_cuda_op_set(ggml_backend_cuda_context & ctx, ggml_tensor * dst) {
+    GGML_LOG_INFO("meewet: ggml_cuda_op_set called\n");
     const ggml_tensor * src0 = dst->src[0];
     const ggml_tensor * src1 = dst->src[1];
 

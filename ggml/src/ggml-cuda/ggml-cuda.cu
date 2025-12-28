@@ -928,11 +928,15 @@ static void ggml_backend_cuda_split_buffer_set_tensor(ggml_backend_buffer_t buff
         }
 
         const char * buf_host = (const char *)data + offset_split;
+        GGML_LOG_INFO("meewet0teweem: Memcpy to device %d: offset_split=%zu, nrows_split=%lld, size=%zu\n", id, offset_split, nrows_split, original_size);
         CUDA_CHECK(cudaMemcpyAsync(extra->data_device[id], buf_host, original_size, cudaMemcpyHostToDevice, cudaStreamPerThread));
+        GGML_LOG_INFO("meewet1: prolly this was async\n", id);
     }
 
     for (int id = 0; id < ggml_backend_cuda_get_device_count(); ++id) {
+        GGML_LOG_INFO("meewet2: starting to sync\n", id);
         CUDA_CHECK(cudaStreamSynchronize(cudaStreamPerThread));
+        GGML_LOG_INFO("meewet3: prolly this will be taking the highest time\n", id);
     }
 }
 
@@ -3646,7 +3650,9 @@ static void evaluate_and_capture_cuda_graph(ggml_backend_cuda_context * cuda_ctx
                 GGML_UNUSED(integrated);
 #endif  // NDEBUG
 
+                GGML_LOG_INFO("meewet1:This is the starting pointCUDA executing %s (%s)\n", node->name, ggml_op_name(node->op));
                 bool ok = ggml_cuda_compute_forward(*cuda_ctx, node);
+                GGML_LOG_INFO("meewet2:This is where it took most timeCUDA executing %s (%s)\n", node->name, ggml_op_name(node->op));
                 if (!ok) {
                     GGML_LOG_ERROR("%s: op not supported %s (%s)\n", __func__, node->name, ggml_op_name(node->op));
                 }
@@ -3764,7 +3770,11 @@ static enum ggml_status ggml_backend_cuda_graph_compute(ggml_backend_t backend, 
 
     bool graph_evaluated_or_captured = false;
 
+    GGML_LOG_INFO("meewet1: CUDA graph compute: use_cuda_graph=%d, cuda_graph_update_required=%d\n",
+        use_cuda_graph ? 1 : 0,
+        cuda_graph_update_required ? 1 : 0);
     evaluate_and_capture_cuda_graph(cuda_ctx, cgraph, graph_evaluated_or_captured, use_cuda_graph, cuda_graph_update_required);
+    GGML_LOG_INFO("meewet2: CUDA graph compute done should have taken a lot of time\n");
 
     return GGML_STATUS_SUCCESS;
 }

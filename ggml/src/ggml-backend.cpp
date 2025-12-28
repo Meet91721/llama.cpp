@@ -393,8 +393,11 @@ void ggml_backend_tensor_copy(struct ggml_tensor * src, struct ggml_tensor * dst
         return;
     }
 
+    GGML_LOG_INFO("meewet_copy1: copying tensor %p to tensor %p\n", src, dst);
     if (ggml_backend_buffer_is_host(src->buffer)) {
+        GGML_LOG_INFO("meewet_copy2: copying tensor %p to tensor %p\n", src, dst);
         ggml_backend_tensor_set(dst, src->data, 0, ggml_nbytes(src));
+        GGML_LOG_INFO("meewet_copy3: this took so much time\n", src, dst);
     } else if (ggml_backend_buffer_is_host(dst->buffer)) {
         ggml_backend_tensor_get(src, dst->data, 0, ggml_nbytes(src));
     } else if (!ggml_backend_buffer_copy_tensor(src, dst)) {
@@ -1443,6 +1446,7 @@ static bool ggml_backend_sched_alloc_splits(ggml_backend_sched_t sched) {
 static enum ggml_status ggml_backend_sched_compute_splits(ggml_backend_sched_t sched) {
     GGML_ASSERT(sched);
     struct ggml_backend_sched_split * splits = sched->splits;
+    GGML_LOG_INFO("meewet0, there should be just one split: computing %d splits\n", sched->n_splits);
 
     ggml_tensor * prev_ids_tensor = nullptr;
     std::vector<int32_t> ids;
@@ -1460,13 +1464,16 @@ static enum ggml_status ggml_backend_sched_compute_splits(ggml_backend_sched_t s
             struct ggml_tensor * input_cpy = tensor_copy(input, split_backend_id, sched->cur_copy);
 
             if (input->flags & GGML_TENSOR_FLAG_INPUT) {
+                GGML_LOG_INFO("meewet1, now processing the inputs: computing %d splits\n", sched->n_splits);
                 // inputs from the user must be copied immediately to prevent the user overwriting the data before the copy is done
                 if (sched->events[split_backend_id][sched->cur_copy] != NULL) {
                     ggml_backend_event_synchronize(sched->events[split_backend_id][sched->cur_copy]);
                 } else {
                     ggml_backend_synchronize(split_backend);
                 }
+                GGML_LOG_INFO("meewet2, now will start copying the tensors: computing %d splits\n", sched->n_splits);
                 ggml_backend_tensor_copy(input, input_cpy);
+                GGML_LOG_INFO("meewet3, prolly this where it is taking most of the time: computing %d splits\n", sched->n_splits);
             } else {
                 // wait for the split backend to finish using the input before overwriting it
                 if (sched->events[split_backend_id][sched->cur_copy] != NULL) {

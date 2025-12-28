@@ -1546,7 +1546,7 @@ ggml_status llama_context::graph_compute(
 
     // LLAMA_LOG_INFO("meewet0 %s: computing graph with %d threads (batched=%d)\n", __func__, n_threads, batched);
     if (backend_cpu != nullptr) {
-        LLAMA_LOG_INFO("meewet1 %s: setting threadpool for CPU backend\n", __func__);
+        // LLAMA_LOG_INFO("meewet1 %s: setting threadpool for CPU backend\n", __func__);
         auto * reg = ggml_backend_dev_backend_reg(ggml_backend_get_device(backend_cpu));
         auto * set_threadpool_fn = (decltype(ggml_backend_cpu_set_threadpool) *) ggml_backend_reg_get_proc_address(reg, "ggml_backend_cpu_set_threadpool");
         if (set_threadpool_fn) {

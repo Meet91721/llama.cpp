@@ -3657,7 +3657,7 @@ static void evaluate_and_capture_cuda_graph(ggml_backend_cuda_context * cuda_ctx
 #endif  // NDEBUG
 
                 // GGML_LOG_INFO("meewet1:This is the starting pointCUDA executing %s (%s)\n", node->name, ggml_op_name(node->op));
-                GGML_LOG_INFO("meewet0: now calling the computeforward\n")
+                GGML_LOG_INFO("meewet0: now calling the computeforward\n");
                 bool ok = ggml_cuda_compute_forward(*cuda_ctx, node);
                 // GGML_LOG_INFO("meewet2:This is where it took most timeCUDA executing %s (%s)\n", node->name, ggml_op_name(node->op));
                 if (!ok) {

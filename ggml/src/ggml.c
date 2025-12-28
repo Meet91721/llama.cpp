@@ -3413,7 +3413,8 @@ static struct ggml_tensor * ggml_cpy_impl(
     if (strlen(b->name) > 0) {
         ggml_format_name(result, "%s (copy of %s)", b->name, a->name);
     } else {
-        ggml_format_name(result, "%s (copy)", a->name);
+        // ggml_format_name(result, "%s (copy)", a->name);
+        ggml_format_name(result, "%s (copy) the actual copy", a->name);
     }
 
     result->op     = GGML_OP_CPY;
@@ -3435,7 +3436,7 @@ struct ggml_tensor * ggml_cast(
         struct ggml_tensor  * a,
         enum   ggml_type      type) {
     struct ggml_tensor * result = ggml_new_tensor(ctx, type, GGML_MAX_DIMS, a->ne);
-    ggml_format_name(result, "%s (copy)", a->name);
+    ggml_format_name(result, "%s (copy) type", a->name);
 
     result->op     = GGML_OP_CPY;
     result->src[0] = a;

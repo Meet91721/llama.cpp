@@ -356,7 +356,7 @@ void ggml_cuda_cpy(ggml_backend_cuda_context & ctx, const ggml_tensor * src0, gg
     const int64_t ne = ggml_nelements(src0);
     GGML_ASSERT(ne == ggml_nelements(src1));
 
-    GGML_LOG_INFO("meewet ggml_cuda_cpy: this is the type  %d  this is the ggmlbytes: %zu", src0->type, ggml_nbytes(src0));
+    GGML_LOG_INFO("meewet ggml_cuda_cpy: this is the type  %d  this is the ggmlbytes: %zu\n", src0->type, ggml_nbytes(src0));
     GGML_ASSERT(ggml_nbytes(src0) <= INT_MAX);
     GGML_ASSERT(ggml_nbytes(src1) <= INT_MAX);
 

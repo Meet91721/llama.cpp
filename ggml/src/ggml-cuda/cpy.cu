@@ -398,7 +398,9 @@ void ggml_cuda_cpy(ggml_backend_cuda_context & ctx, const ggml_tensor * src0, gg
         } else
 #endif // GGML_USE_MUSA && GGML_MUSA_MUDNN_COPY
         {
+            GGML_LOG_INFO("meewet ggml_cuda_cpy: finally this is the %d bytes", (int)ggml_nbytes(src0));
             CUDA_CHECK(cudaMemcpyAsync(src1_ddc, src0_ddc, ggml_nbytes(src0), cudaMemcpyDeviceToDevice, main_stream));
+            GGML_LOG_INFO("meewet ggml_cuda_cpy: some internal conversion happened %d bytes", (int)ggml_nbytes(src0));
         }
     } else if (src0->type == GGML_TYPE_F32 && src1->type == GGML_TYPE_F32) {
         if (can_be_transposed) {

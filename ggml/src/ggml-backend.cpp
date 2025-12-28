@@ -354,6 +354,7 @@ enum ggml_status ggml_backend_graph_plan_compute(ggml_backend_t backend, ggml_ba
 }
 
 enum ggml_status ggml_backend_graph_compute(ggml_backend_t backend, struct ggml_cgraph * cgraph) {
+    GGML_LOG_INFO("meewet_new_backend_graph_compute: starting graph compute\n");
     enum ggml_status err = ggml_backend_graph_compute_async(backend, cgraph);
     ggml_backend_synchronize(backend);
     return err;
@@ -361,6 +362,7 @@ enum ggml_status ggml_backend_graph_compute(ggml_backend_t backend, struct ggml_
 
 enum ggml_status ggml_backend_graph_compute_async(ggml_backend_t backend, struct ggml_cgraph * cgraph) {
     GGML_ASSERT(backend);
+    GGML_LOG_INFO("meewet_new_backend_graph_compute_async: computing graph with %d nodes and %d leafs\n", cgraph->n_nodes, cgraph->n_leafs);
     return backend->iface.graph_compute(backend, cgraph);
 }
 
@@ -393,11 +395,11 @@ void ggml_backend_tensor_copy(struct ggml_tensor * src, struct ggml_tensor * dst
         return;
     }
 
-    GGML_LOG_INFO("meewet_copy1: copying tensor %p to tensor %p\n", src, dst);
+    // GGML_LOG_INFO("meewet_copy1: copying tensor %p to tensor %p\n", src, dst);
     if (ggml_backend_buffer_is_host(src->buffer)) {
-        GGML_LOG_INFO("meewet_copy2: copying tensor %p to tensor %p\n");
+        GGML_LOG_INFO("meewet_copy0: copying tensor %p to tensor %p\n");
         ggml_backend_tensor_set(dst, src->data, 0, ggml_nbytes(src));
-        GGML_LOG_INFO("meewet_copy3: this took so much time\n");
+        GGML_LOG_INFO("meewet_copy0: this took so much time\n");
     } else if (ggml_backend_buffer_is_host(dst->buffer)) {
         ggml_backend_tensor_get(src, dst->data, 0, ggml_nbytes(src));
     } else if (!ggml_backend_buffer_copy_tensor(src, dst)) {
@@ -1464,16 +1466,16 @@ static enum ggml_status ggml_backend_sched_compute_splits(ggml_backend_sched_t s
             struct ggml_tensor * input_cpy = tensor_copy(input, split_backend_id, sched->cur_copy);
 
             if (input->flags & GGML_TENSOR_FLAG_INPUT) {
-                GGML_LOG_INFO("meewet1, now processing the inputs: computing %d splits\n", sched->n_splits);
+                // GGML_LOG_INFO("meewet1, now processing the inputs: computing %d splits\n", sched->n_splits);
                 // inputs from the user must be copied immediately to prevent the user overwriting the data before the copy is done
                 if (sched->events[split_backend_id][sched->cur_copy] != NULL) {
                     ggml_backend_event_synchronize(sched->events[split_backend_id][sched->cur_copy]);
                 } else {
                     ggml_backend_synchronize(split_backend);
                 }
-                GGML_LOG_INFO("meewet2, now will start copying the tensors: computing %d splits\n", sched->n_splits);
+                GGML_LOG_INFO("meewet0, now will start copying the tensors: computing %d splits\n", sched->n_splits);
                 ggml_backend_tensor_copy(input, input_cpy);
-                GGML_LOG_INFO("meewet3, prolly this where it is taking most of the time: computing %d splits\n", sched->n_splits);
+                GGML_LOG_INFO("meewet0, prolly this where it is taking most of the time: computing %d splits\n", sched->n_splits);
             } else {
                 // wait for the split backend to finish using the input before overwriting it
                 if (sched->events[split_backend_id][sched->cur_copy] != NULL) {
@@ -1584,6 +1586,7 @@ static enum ggml_status ggml_backend_sched_compute_splits(ggml_backend_sched_t s
         }
 
         if (!sched->callback_eval) {
+            GGML_LOG_INFO("meewet_new, no callback: computing %d splits\n", sched->n_splits);
             enum ggml_status ec = ggml_backend_graph_compute_async(split_backend, &split->graph);
             if (ec != GGML_STATUS_SUCCESS) {
                 return ec;
@@ -1606,6 +1609,7 @@ static enum ggml_status ggml_backend_sched_compute_splits(ggml_backend_sched_t s
 
                 struct ggml_cgraph gv = ggml_graph_view(&split->graph, j0, j1 + 1);
 
+                GGML_LOG_INFO("meewet_new, with callback: computing nodes %d to %d of split %d/%d\n", j0, j1, split_id + 1, sched->n_splits);
                 enum ggml_status ec = ggml_backend_graph_compute_async(split_backend, &gv);
                 if (ec != GGML_STATUS_SUCCESS) {
                     return ec;
@@ -1797,25 +1801,24 @@ enum ggml_status ggml_backend_sched_graph_compute(ggml_backend_sched_t sched, st
 
 enum ggml_status ggml_backend_sched_graph_compute_async(ggml_backend_sched_t sched, struct ggml_cgraph * graph) {
     // Print logs here for easier debugging
-    GGML_LOG_INFO("meewet0%s: computing graph with %d nodes and %d leafs\n", __func__, graph->n_nodes, graph->n_leafs);
+    // GGML_LOG_INFO("meewet0%s: computing graph with %d nodes and %d leafs\n", __func__, graph->n_nodes, graph->n_leafs);
 
     GGML_ASSERT(sched);
     if (!sched->is_reset && !sched->is_alloc) {
-        GGML_LOG_INFO("meewet1%s: computing graph with %d nodes and %d leafs\n", __func__, graph->n_nodes, graph->n_leafs);
+        // GGML_LOG_INFO("meewet1%s: computing graph with %d nodes and %d leafs\n", __func__, graph->n_nodes, graph->n_leafs);
         ggml_backend_sched_reset(sched);
     }
-    GGML_LOG_INFO("meewet2%s: computing graph with %d nodes and %d leafs\n", __func__, graph->n_nodes, graph->n_leafs);
+    // GGML_LOG_INFO("meewet2%s: computing graph with %d nodes and %d leafs\n", __func__, graph->n_nodes, graph->n_leafs);
 
     if (!sched->is_alloc) {
-        GGML_LOG_INFO("meewet3%s: computing graph with %d nodes and %d leafs\n", __func__, graph->n_nodes, graph->n_leafs);
+        // GGML_LOG_INFO("meewet3%s: computing graph with %d nodes and %d leafs\n", __func__, graph->n_nodes, graph->n_leafs);
         if (!ggml_backend_sched_alloc_graph(sched, graph)) {
             return GGML_STATUS_ALLOC_FAILED;
         }
     }
-    GGML_LOG_INFO("meewet4%s: computing graph with %d nodes and %d leafs\n", __func__, graph->n_nodes, graph->n_leafs);
-
+    GGML_LOG_INFO("meewet0%s: computing graph with %d nodes and %d leafs\n", __func__, graph->n_nodes, graph->n_leafs);
     ggml_status status = ggml_backend_sched_compute_splits(sched);
-    GGML_LOG_INFO("meewet5%s: computing graph with %d nodes and %d leafs\n", __func__, graph->n_nodes, graph->n_leafs);
+    GGML_LOG_INFO("meewet-0%s: This should have taken a lot of time\n", __func__);
     return status;
     // return ggml_backend_sched_compute_splits(sched);
 }

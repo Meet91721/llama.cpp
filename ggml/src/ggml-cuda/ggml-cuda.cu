@@ -626,9 +626,10 @@ static void ggml_backend_cuda_buffer_memset_tensor(ggml_backend_buffer_t buffer,
 static void ggml_backend_cuda_buffer_set_tensor(ggml_backend_buffer_t buffer, ggml_tensor * tensor, const void * data, size_t offset, size_t size) {
     ggml_backend_cuda_buffer_context * ctx = (ggml_backend_cuda_buffer_context *)buffer->context;
 
-    GGML_LOG_INFO("meewet--: you are not coming here");
+    GGML_LOG_INFO("meewet--: you are not coming here\n");
     ggml_cuda_set_device(ctx->device);
     CUDA_CHECK(cudaMemcpyAsync((char *)tensor->data + offset, data, size, cudaMemcpyHostToDevice, cudaStreamPerThread));
+    GGML_LOG_INFO("meewet--: you are leaving here\n");
     CUDA_CHECK(cudaStreamSynchronize(cudaStreamPerThread));
 }
 
@@ -900,7 +901,7 @@ static enum ggml_status ggml_backend_cuda_split_buffer_init_tensor(ggml_backend_
 
 static void ggml_backend_cuda_split_buffer_set_tensor(ggml_backend_buffer_t buffer, ggml_tensor * tensor, const void * data, size_t offset, size_t size) {
     // split tensors must always be set in their entirety at once
-    GGML_LOG_INFO("meewet--: you are not coming here1");
+    GGML_LOG_INFO("meewet--: you are not coming here1\n");
     GGML_ASSERT(offset == 0);
     GGML_ASSERT(size == ggml_nbytes(tensor));
     GGML_ASSERT(ggml_is_contiguous(tensor) && "split buffers only supported for contiguous tensors");
@@ -2424,7 +2425,7 @@ static bool ggml_cuda_compute_forward(ggml_backend_cuda_context & ctx, struct gg
         ggml_cuda_set_peer_access(dst->src[1]->ne[1], ctx.device);
     }
     if(dst->op == GGML_OP_CPY || dst->op == GGML_OP_DUP || dst->op == GGML_OP_CONT || dst->op == GGML_OP_SET) {
-        GGML_LOG_INFO("We are calculating it from withing ggml_cuda_compute_forward: dst op %d, name %s", dst->op, dst->name);
+        GGML_LOG_INFO("meewet1: We are calculating it from withing ggml_cuda_compute_forward: dst op %d, name %s\n", dst->op, dst->name);
     }
 
     switch (dst->op) {
@@ -3656,6 +3657,7 @@ static void evaluate_and_capture_cuda_graph(ggml_backend_cuda_context * cuda_ctx
 #endif  // NDEBUG
 
                 // GGML_LOG_INFO("meewet1:This is the starting pointCUDA executing %s (%s)\n", node->name, ggml_op_name(node->op));
+                GGML_LOG_INFO("meewet0: now calling the computeforward\n")
                 bool ok = ggml_cuda_compute_forward(*cuda_ctx, node);
                 // GGML_LOG_INFO("meewet2:This is where it took most timeCUDA executing %s (%s)\n", node->name, ggml_op_name(node->op));
                 if (!ok) {

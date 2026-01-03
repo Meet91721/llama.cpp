@@ -861,6 +861,7 @@ private:
 
     // unlike load_model(), this is only called once during initialization
     bool init() {
+        SRV_INF("%s", "meewet initializing server context\n");
         GGML_ASSERT(ctx != nullptr);
         GGML_ASSERT(model != nullptr);
         GGML_ASSERT(!sleeping);
@@ -907,6 +908,7 @@ private:
         server_slot * ret = nullptr;
 
         bool update_cache = false;
+        SRV_INF("meewet: selecting slot for task id %d This is the slot_prompt_similarity %f\n", task.id, slot_prompt_similarity);
 
         // find the slot that has at least n% prompt similarity
         if (ret == nullptr && slot_prompt_similarity != 0.0f) {
@@ -1066,6 +1068,7 @@ private:
     bool launch_slot_with_task(server_slot & slot, server_task && task) {
         slot.reset();
 
+        SLT_INF(slot, "launching task id %d, type %d\n", task.id, task.params.lora.empty());
         // process per-request lora adapters
         if (!task.params.lora.empty()) {
             auto task_loras = construct_lora_list(task.params.lora);
@@ -1136,7 +1139,7 @@ private:
             return false;
         }
 
-        SLT_DBG(slot, "launching slot : %s\n", safe_json_to_str(slot.to_json()).c_str());
+        SLT_INF(slot, "meewet: launching slot : %s\n", safe_json_to_str(slot.to_json()).c_str());
 
         // initialize samplers
         {
@@ -1153,6 +1156,7 @@ private:
 
         // initialize draft batch
         // TODO: rework speculative decoding [TAG_SERVER_SPEC_REWORK]
+        SLT_INF(slot, "meewet: must not be coming here in the spec decoding%d\n", slot.ctx_dft != nullptr);
         if (slot.ctx_dft) {
             llama_batch_free(slot.batch_spec);
 
@@ -1598,6 +1602,8 @@ private:
     }
 
     void process_single_task(server_task && task) {
+        if (task.id != 5)
+            SRV_INF("meewet: processing single task, id_task = %d, type = %d\n", task.id, task.type);
         switch (task.type) {
             case SERVER_TASK_TYPE_COMPLETION:
             case SERVER_TASK_TYPE_INFILL:
@@ -1610,9 +1616,12 @@ private:
 
                     const int id_slot = task.id_slot;
 
+                    SRV_INF("meewet: task id %d requesting slot id %d\n", task.id, id_slot);
                     server_slot * slot = id_slot != -1 ? get_slot_by_id(id_slot) : get_available_slot(task);
+                    SRV_INF("meewet: get slot returned %p\n", (void*)slot);
 
                     if (slot == nullptr) {
+                        SRV_INF("meewet: must not be coming here, since slot is not null %d\n", task.id);
                         // if no slot is available, we defer this task for processing later
                         SRV_DBG("no slot is available, defer task, id_task = %d\n", task.id);
                         queue_tasks.defer(std::move(task));
@@ -1620,6 +1629,7 @@ private:
                     }
 
                     if (slot->is_processing()) {
+                        SRV_INF("meewet: must not be coming here, since slot is not processing %d\n", task.id);
                         // if requested slot is unavailable, we defer this task for processing later
                         SRV_DBG("requested slot is unavailable, defer task, id_task = %d\n", task.id);
                         queue_tasks.defer(std::move(task));

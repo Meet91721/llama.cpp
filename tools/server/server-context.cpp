@@ -1584,6 +1584,7 @@ private:
 
             // Apply chat template to the list of messages
             auto chat_params = common_chat_templates_apply(opt.tmpls, inputs);
+            SRV_INF("meewet: formatted prompt: '%s'\n", chat_params.prompt.c_str());
 
             // tokenize the resulting prompt
             auto & prompt = chat_params.prompt;
@@ -1602,7 +1603,7 @@ private:
     }
 
     void process_single_task(server_task && task) {
-        if (task.id != 5)
+        if (task.type != 5)
             SRV_INF("meewet: processing single task, id_task = %d, type = %d\n", task.id, task.type);
         switch (task.type) {
             case SERVER_TASK_TYPE_COMPLETION:
@@ -1610,7 +1611,7 @@ private:
             case SERVER_TASK_TYPE_EMBEDDING:
             case SERVER_TASK_TYPE_RERANK:
                 {
-                    if (!tokenize_cli_input(task)) {
+                    if (!tokenize_cli_input(task)) { //meewet: Tokens are same across different task - verified
                         break;
                     }
 
